@@ -105,7 +105,8 @@ const latApi = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&
     let newer = [res.data]
     console.log(newer)
     setWeather(newer)
-    console.log(weather)
+    }).catch((err)=>{
+      setErr(err)
     })
    })()
   },[])
@@ -135,10 +136,13 @@ function btnPress(){
         <Text style={styles.btntxt}>search</Text>
       </TouchableOpacity>
      </View>
+     {
+       err? <Text>{err}</Text>: null
+     }
      <Text>
-       {weather.map((er)=>{
+       {/* {weather.map((er)=>{
          return er.coord.lon
-       })}
+       })} */}
      </Text>
     </View>
   );
