@@ -1,58 +1,121 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import * as Font from "expo-font"
+import React,{useState,useEffect} from 'react';
+import {  Text, View,TextInput, TouchableOpacity } from 'react-native';
 import  {useFonts} from "@use-expo/font"
+import {API_KEY} from "./variables"
+import {styles} from "./stylesheet"
+import * as location from "expo-location"
+import axios from 'axios';
 
 const customFonts ={
-  changa: require("./assets/fonts/Changa-Regular.ttf")
+  changa: require("./assets/fonts/Changa-Regular.ttf"),
+  changaBold: require("./assets/fonts/Changa-Bold.ttf"),
+  alumni: require("./assets/fonts/AlumniSans-Regular.ttf"),
+  alumniBold: require("./assets/fonts/AlumniSans-Bold.ttf"),
+  greze: require("./assets/fonts/GrenzeGotisch-Regular.ttf"),
+  grezeBold: require("./assets/fonts/GrenzeGotisch-Bold.ttf")
 }
+
+
+// interface WeatherType {
+//   "coord":{
+//     "lon":Number,
+//     "lat":Number
+//   },
+//   "weather":[
+//     {
+//       "id":Number,
+//       "main":String,
+//       "description":String,
+//       "icon":String
+//     }
+//   ],
+//   "base":String,
+//   "main":{
+//     "temp":Number,
+//     "feels_like":Number,
+//     "temp_min":Number,
+//     "temp_max":Number,
+//     "pressure":Number,
+//     "humidity":Number,
+// ​​"grnd_level": Number,
+// ​​​​​"sea_level": Number
+// ​​​​
+//   },
+//   "visibility":Number,
+//   "wind":{
+//     "speed":Number,
+//     "deg":Number,
+//     "gust":Number
+//   },
+//   "clouds":{
+//     "all":Number
+//   },
+//   "dt":Number,
+//   "sys":{
+//     "type":Number,
+//    "id":Number,
+//    "message":Number,
+//    "country":String,
+//    "sunrise":Number,
+//    "sunset":Number
+//   },
+  
+//   "timezone":Number,
+//   "id":Number,
+//   "name":String,
+//   "cod":Number
+// }
 
 export default function App() {
+  useEffect(()=>{
+   (async()=>{
+     let {status} = await location.requestForegroundPermissionsAsync()
+   
+     if(status !== "granted"){
+      setErr("Permission to access location was denied")
+      return
+     }
+
+     let position = await location.getCurrentPositionAsync({})
+     const {latitude, longitude} = position.coords
+  
+const latApi = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`
+  axios.get(latApi).then(res=>console.log(res.data))
+   })()
+  },[])
   const [isLoaded] = useFonts(customFonts)
+  // const [weather, setWeather] = useState< {}|WeatherType>({})
+  const [loc, setLoc] = useState<string>("")
+  const [err, setErr] = useState<string>("")
+  const cityApi = `https://api.openweathermap.org/data/2.5/weather?q=${loc}&appid=${API_KEY}`
+const iconApi = `https://openweathermap.org/img/wn/{icon}@4x.png`
 
-  if(isLoaded){
+function btnPress(){
+  alert("pressed")
+}
+  return (
+    <View style={styles.container}>
+    <View style={styles.header}>
+      <View style ={styles.textCon}>
+        <Text style={styles.text}>Weather4u </Text>
+      </View>
+     </View>
 
-    return (
-      <View style={styles.container}>
-      <View style={styles.car}>
-   <View style={styles.titles}>
-  <Text style={styles.title}>Model Alpha</Text>
-  <Text style={styles.subtitle}>Starting at $780</Text>
-   </View>
-  
-  
-  
-      </View>
-      </View>
-    );
-  }
+     <View style={styles.inputCon}>
+       <TextInput
+        style={styles.input}
+        placeholder="Search by city name"
+        onChangeText={text => setLoc(text)}
+        defaultValue={loc}
+      />
+     <TouchableOpacity
+        style={styles.button}
+        onPress={btnPress}
+      >
+        <Text style={styles.btntxt}>search</Text>
+      </TouchableOpacity>
+     </View>
+    </View>
+  );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  car:{
-       width:"100%",
-       height:"100%",
-
-  },
-  titles:{
-      marginTop:"20%",
-      width:"100%",
-      alignItems:"center"
-  },
-  title:{
-    fontSize:42,
-    fontWeight:"500",
-    // fontFamily:"Alumni Sans"
-      },
-  subtitle:{
-   fontSize:16,
-   color:"#5c5e62"
-  }
-});
