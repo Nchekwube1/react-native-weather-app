@@ -36,11 +36,7 @@ const customFonts ={
 //     "temp_min":Number,
 //     "temp_max":Number,
 //     "pressure":Number,
-//     "humidity":Number,
-// ​​"grnd_level": Number,
-// ​​​​​"sea_level": Number
-// ​​​​
-//   },
+//     "humidity":Number​},
 //   "visibility":Number,
 //   "wind":{
 //     "speed":Number,
@@ -66,7 +62,32 @@ const customFonts ={
 //   "cod":Number
 // }
 
+interface response{"coord":{
+  "lon":Number,"lat":Number},"weather":[
+    {"id":Number,"main":string,"description":string,"icon":string}]
+    ,"base":string,
+    "main":{
+      "temp":Number,"feels_like":Number,"temp_min":Number,"temp_max":Number,"pressure":Number,"humidity":Number,"sea_level":Number,"grnd_level":Number},
+      "visibility":Number,
+      "wind":{
+        "speed":Number,"deg":Number,"gust":Number},
+        "rain":{"1h":Number},
+        "clouds":{"all":Number},
+        "dt":Number,
+        "sys":{"country":string,"sunrise":Number,"sunset":Number},
+        "timezone":Number,"id":Number,"name":string,"cod":Number}
+
+interface responseArr extends Array<response>{
+}
+
 export default function App() {
+    const [isLoaded] = useFonts(customFonts)
+  const [weather, setWeather] = useState<responseArr|[]>([])
+  const [loc, setLoc] = useState<string>("")
+  const [err, setErr] = useState<string>("")
+  const cityApi = `https://api.openweathermap.org/data/2.5/weather?q=${loc}&appid=${API_KEY}`
+const iconApi = `https://openweathermap.org/img/wn/{icon}@4x.png`
+
   useEffect(()=>{
    (async()=>{
      let {status} = await location.requestForegroundPermissionsAsync()
@@ -80,15 +101,14 @@ export default function App() {
      const {latitude, longitude} = position.coords
   
 const latApi = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`
-  axios.get(latApi).then(res=>console.log(res.data))
+  axios.get(latApi).then(res=>{
+    let newer = [res.data]
+    console.log(newer)
+    setWeather(newer)
+    console.log(weather)
+    })
    })()
   },[])
-  const [isLoaded] = useFonts(customFonts)
-  // const [weather, setWeather] = useState< {}|WeatherType>({})
-  const [loc, setLoc] = useState<string>("")
-  const [err, setErr] = useState<string>("")
-  const cityApi = `https://api.openweathermap.org/data/2.5/weather?q=${loc}&appid=${API_KEY}`
-const iconApi = `https://openweathermap.org/img/wn/{icon}@4x.png`
 
 function btnPress(){
   alert("pressed")
@@ -115,6 +135,11 @@ function btnPress(){
         <Text style={styles.btntxt}>search</Text>
       </TouchableOpacity>
      </View>
+     <Text>
+       {weather.map((er)=>{
+         return er.coord.lon
+       })}
+     </Text>
     </View>
   );
 }
