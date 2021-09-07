@@ -78,5 +78,10 @@ btntxt:{
    fontFamily:"changa",
    fontSize:13,
    textTransform:"capitalize"
+  },
+  body:{
+      position:"relative",
+      paddingTop:10,
+       
   }
 });

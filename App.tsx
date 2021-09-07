@@ -1,10 +1,12 @@
 import React,{useState,useEffect} from 'react';
-import {  Text, View,TextInput, TouchableOpacity } from 'react-native';
+import {  Text, View } from 'react-native';
 import  {useFonts} from "@use-expo/font"
 import {API_KEY} from "./variables"
 import {styles} from "./stylesheet"
 import * as location from "expo-location"
 import axios from 'axios';
+import Search from './Search';
+import Main from './main';
 
 const customFonts ={
   changa: require("./assets/fonts/Changa-Regular.ttf"),
@@ -15,54 +17,7 @@ const customFonts ={
   grezeBold: require("./assets/fonts/GrenzeGotisch-Bold.ttf")
 }
 
-
-// interface WeatherType {
-//   "coord":{
-//     "lon":Number,
-//     "lat":Number
-//   },
-//   "weather":[
-//     {
-//       "id":Number,
-//       "main":String,
-//       "description":String,
-//       "icon":String
-//     }
-//   ],
-//   "base":String,
-//   "main":{
-//     "temp":Number,
-//     "feels_like":Number,
-//     "temp_min":Number,
-//     "temp_max":Number,
-//     "pressure":Number,
-//     "humidity":Number​},
-//   "visibility":Number,
-//   "wind":{
-//     "speed":Number,
-//     "deg":Number,
-//     "gust":Number
-//   },
-//   "clouds":{
-//     "all":Number
-//   },
-//   "dt":Number,
-//   "sys":{
-//     "type":Number,
-//    "id":Number,
-//    "message":Number,
-//    "country":String,
-//    "sunrise":Number,
-//    "sunset":Number
-//   },
-  
-//   "timezone":Number,
-//   "id":Number,
-//   "name":String,
-//   "cod":Number
-// }
-
-interface response{"coord":{
+export interface response{"coord":{
   "lon":Number,"lat":Number},"weather":[
     {"id":Number,"main":string,"description":string,"icon":string}]
     ,"base":string,
@@ -77,15 +32,13 @@ interface response{"coord":{
         "sys":{"country":string,"sunrise":Number,"sunset":Number},
         "timezone":Number,"id":Number,"name":string,"cod":Number}
 
-interface responseArr extends Array<response>{
+export interface responseArr extends Array<response>{
 }
 
 export default function App() {
     const [isLoaded] = useFonts(customFonts)
   const [weather, setWeather] = useState<responseArr|[]>([])
-  const [loc, setLoc] = useState<string>("")
   const [err, setErr] = useState<string>("")
-  const cityApi = `https://api.openweathermap.org/data/2.5/weather?q=${loc}&appid=${API_KEY}`
 const iconApi = `https://openweathermap.org/img/wn/{icon}@4x.png`
 
   useEffect(()=>{
@@ -111,9 +64,7 @@ const latApi = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&
    })()
   },[])
 
-function btnPress(){
-  alert("pressed")
-}
+
   return (
     <View style={styles.container}>
     <View style={styles.header}>
@@ -121,29 +72,29 @@ function btnPress(){
         <Text style={styles.text}>Weather4u </Text>
       </View>
      </View>
-
-     <View style={styles.inputCon}>
-       <TextInput
-        style={styles.input}
-        placeholder="Search by city name"
-        onChangeText={text => setLoc(text)}
-        defaultValue={loc}
-      />
-     <TouchableOpacity
-        style={styles.button}
-        onPress={btnPress}
-      >
-        <Text style={styles.btntxt}>search</Text>
-      </TouchableOpacity>
-     </View>
+      <View style={styles.body}>
+        <Search/>
+    
      {
-       err? <Text>{err}</Text>: null
+       err? <Text>{err}</Text>: <Main 
+       coord={weather[0]?.coord}
+       weather={weather[0]?.weather}
+       base={weather[0]?.base}
+       main={weather[0]?.main}
+       visibility={weather[0]?.visibility}
+       wind={weather[0]?.wind}
+       rain={weather[0]?.rain}
+       clouds ={weather[0]?.clouds}
+       dt={weather[0]?.dt}
+       sys={weather[0]?.sys}
+       timezone={weather[0]?.timezone}
+       id={weather[0]?.id}
+       name={weather[0]?.name}
+       cod={weather[0]?.cod}
+       />
      }
-     <Text>
-       {/* {weather.map((er)=>{
-         return er.coord.lon
-       })} */}
-     </Text>
+      
+      </View>
     </View>
   );
 }
