@@ -1,11 +1,10 @@
 import React,{useState,useEffect} from 'react';
-import {  Text, View } from 'react-native';
+import {  Text, View ,TextInput, TouchableOpacity} from 'react-native';
 import  {useFonts} from "@use-expo/font"
 import {API_KEY} from "./variables"
 import {styles} from "./stylesheet"
 import * as location from "expo-location"
 import axios from 'axios';
-import Search from './Search';
 import Main from './main';
 
 const customFonts ={
@@ -22,8 +21,8 @@ export interface response{"coord":{
     {"id":Number,"main":string,"description":string,"icon":string}]
     ,"base":string,
     "main":{
-      "temp":Number,"feels_like":Number,"temp_min":Number,"temp_max":Number,"pressure":Number,"humidity":Number,"sea_level":Number,"grnd_level":Number},
-      "visibility":Number,
+      "temp":number,"feels_like":Number,"temp_min":Number,"temp_max":Number,"pressure":Number,"humidity":Number,"sea_level":Number,"grnd_level":Number},
+      "visibility":number,
       "wind":{
         "speed":Number,"deg":Number,"gust":Number},
         "rain":{"1h":Number},
@@ -37,10 +36,14 @@ export interface responseArr extends Array<response>{
 
 export default function App() {
     const [isLoaded] = useFonts(customFonts)
-  const [weather, setWeather] = useState<responseArr|[]>([])
+  const [loc, setLoc] = useState<string>("")
+   const [weather, setWeather] = useState<responseArr|[]>([])
   const [err, setErr] = useState<string>("")
-const iconApi = `https://openweathermap.org/img/wn/{icon}@4x.png`
+  const cityApi = `https://api.openweathermap.org/data/2.5/weather?q=${loc}&appid=${API_KEY}`
 
+    function fxn(as:responseArr){
+        return setWeather(as)
+    }
   useEffect(()=>{
    (async()=>{
      let {status} = await location.requestForegroundPermissionsAsync()
@@ -56,7 +59,6 @@ const iconApi = `https://openweathermap.org/img/wn/{icon}@4x.png`
 const latApi = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`
   axios.get(latApi).then(res=>{
     let newer = [res.data]
-    console.log(newer)
     setWeather(newer)
     }).catch((err)=>{
       setErr(err)
@@ -64,6 +66,11 @@ const latApi = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&
    })()
   },[])
 
+    async function btnPress(){
+      await axios.get(cityApi).then(res=>{
+        setWeather([res.data])
+      })
+  }
 
   return (
     <View style={styles.container}>
@@ -73,7 +80,20 @@ const latApi = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&
       </View>
      </View>
       <View style={styles.body}>
-        <Search/>
+             <View style={styles.inputCon}>
+       <TextInput
+        style={styles.input}
+        placeholder="Search by city name"
+        onChangeText={text => setLoc(text)}
+        defaultValue={loc}
+      />
+     <TouchableOpacity
+        style={styles.button}
+        onPress={btnPress}
+      >
+        <Text style={styles.btntxt}>search</Text>
+      </TouchableOpacity>
+     </View>
     
      {
        err? <Text>{err}</Text>: <Main 
